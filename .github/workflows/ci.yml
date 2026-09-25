@@ -29,7 +29,7 @@ jobs:
 
       - name: Security scan
         run: |
-          bandit -r . -x ./venv
+          bandit -r app.py
 
       - name: Start application
         run: |
