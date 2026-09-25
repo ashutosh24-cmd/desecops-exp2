@@ -1,0 +1,41 @@
+name: DevSecOps CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run tests
+        run: |
+          pytest
+
+      - name: Security scan
+        run: |
+          bandit -r . -x ./venv
+
+      - name: Start application
+        run: |
+          gunicorn -w 1 -b 127.0.0.1:8000 app:app &
+          sleep 5
+
+      - name: Verify deployment
+        run: |
+          curl http://127.0.0.1:8000/
